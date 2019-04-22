@@ -1,0 +1,37 @@
+<idea-plugin>
+    <id>com.teradata.dolphinTemplate</id>
+    <name>DolphinTemplate</name>
+    <version>1.0</version>
+    <vendor email="843705423@qq.com" url="http://www.teradata.com">Teradata</vendor>
+    <depends>com.intellij.modules.lang</depends>
+    <description><![CDATA[
+       Think me! your will like this plugin
+      <em>good luck for your</em>
+    ]]></description>
+
+    <change-notes><![CDATA[
+      this is nothing to say</br>
+      <em>yeap</em>
+    ]]>
+    </change-notes>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="173.0"/>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+        <action id="DolphinTemplate" class="com.teradata.action.DolphinTemplate" text="DolphinTemplate"
+                description="DolphinTemplate"/>
+    </actions>
+
+</idea-plugin>
