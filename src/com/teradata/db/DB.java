@@ -1,6 +1,9 @@
 package com.teradata.db;
 
 public class DB extends com.teradata.db.DataBaseUtil {
+    public DB() throws Exception {
+    }
+
     @Override
     protected String getUser() {
         return "root";

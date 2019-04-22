@@ -1,9 +1,19 @@
 package com.teradata.ui;
 
 import com.intellij.ide.util.PropertiesComponent;
+import com.intellij.openapi.ui.Messages;
+import com.teradata.db.DB;
+import com.teradata.db.DataBaseUtil;
+import com.teradata.db.DataPrepare;
+import com.teradata.db.DatabaseFactory;
+import cucumber.api.java.hu.Ha;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 import javax.swing.*;
 import java.awt.event.*;
+import java.io.File;
+import java.sql.SQLException;
+import java.util.HashMap;
 
 public class MainConfig extends JDialog {
     private JPanel contentPane;
@@ -20,6 +30,7 @@ public class MainConfig extends JDialog {
     private JButton templateChooseButton;
 
     private PropertiesComponent config;
+    private DataBaseUtil db;
 
     public MainConfig() {
         setContentPane(contentPane);
@@ -33,6 +44,7 @@ public class MainConfig extends JDialog {
 
         templateConfigText.setEditable(false);
         databaseConfigText.setEditable(false);
+
         buttonCancel.addActionListener(e -> onCancel());
         templateChooseButton.addActionListener(e -> {
             JFileChooser jFileChooser = new JFileChooser();
@@ -107,6 +119,33 @@ public class MainConfig extends JDialog {
     private void onOK() {
         // add your code here
         saveConfig();
+        if (databaseConfigText == null || databaseConfigText.equals("")) {
+            Messages.showErrorDialog("数据库配置不能为空", "");
+        }
+        File file = new File(databaseConfigText.getText());
+        if(file.exists()==false){
+            Messages.showErrorDialog("该文件已经不存在,请检查", "");
+            return;
+        }
+        try {
+            db = DatabaseFactory.readFile(file);
+        } catch (Exception e) {
+            Messages.showErrorDialog(e.getMessage(),"");
+            return;
+        }
+        String key = keyText.getText();
+        String className = classNameText.getText();
+        String objectName = objectNameText.getText();
+        String title = titleText.getText();
+        String tableName = tableNameText.getText();
+        HashMap<String,Object>map ;
+        try {
+            map = DataPrepare.getData(db,key,className,objectName,title,tableName);
+        } catch (Exception e) {
+            Messages.showErrorDialog(e.getMessage(),"");
+            return;
+        }
+        System.out.println(map);
         dispose();
     }
 

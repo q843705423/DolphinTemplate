@@ -1,3 +1,4 @@
+
 package com.teradata.db;
 
 import java.lang.reflect.Field;
@@ -20,7 +21,7 @@ public abstract class DataBaseUtil {
     private Statement stmt;
     private boolean transactionIsOpen;
 
-    public DataBaseUtil() {
+    public DataBaseUtil() throws Exception {
         try {
             transactionIsOpen = false;
             Class.forName("com.mysql.jdbc.Driver");
@@ -28,6 +29,8 @@ public abstract class DataBaseUtil {
         } catch (ClassNotFoundException e) {
 
             showError("please go to download the drive about mysql for java!!!");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -87,6 +90,30 @@ public abstract class DataBaseUtil {
     }
 
 
+    public static String type2Class(String type){
+        if(type.equalsIgnoreCase("int")){
+            return "Integer";
+        }else if(type.equalsIgnoreCase("bigint")){
+            return "Long";
+        }else if(type.equalsIgnoreCase("float")){
+            return "Float";
+        }
+        else if(type.contains("int")){
+            return "Integer";
+        }
+        else if(type.equalsIgnoreCase("varchar")){
+            return "String";
+        }else if(type.equalsIgnoreCase("double")){
+            return "Double";
+        }else  if(type.equalsIgnoreCase("blob")){
+            return "String";
+        }else if(type.equalsIgnoreCase("date")){
+            return "String";
+        }
+        return "String";
+    }
+
+
     protected String getUrl() {
         return "jdbc:mysql://${ip}:${port}/${databaseName}?useSSL=true&&characterEncoding=utf8"
                 .replace("${ip}", getIp())
@@ -95,38 +122,28 @@ public abstract class DataBaseUtil {
     }
 
 
-    private void showError(String message) {
-        System.err.println(message);
-        System.exit(0);
+    private void showError(String message) throws Exception {
+
+        throw new Exception(message);
     }
 
-    private Connection getConnection() {
+    private Connection getConnection() throws Exception {
 
         if (con == null) {
-            try {
-                con = DriverManager.getConnection(getUrl(), getUser(), getPassword());
-            } catch (SQLException e) {
-                e.printStackTrace();
-                showError("database config error,please check it!!!");
-            }
+            con = DriverManager.getConnection(getUrl(), getUser(), getPassword());
         }
         return con;
     }
 
-    private Statement getStatement() {
+    private Statement getStatement() throws Exception {
         if (stmt == null) {
-            try {
-                stmt = con.createStatement();
-            } catch (SQLException e) {
-                showError("sql is error");
-                e.printStackTrace();
-            }
+            stmt = con.createStatement();
         }
 
         return stmt;
     }
 
-    public void insert(Object obj, String tableName) throws SQLException {
+    public void insert(Object obj, String tableName) throws Exception {
 
         List<FieldInfo> tableFileds = getTableFieldsBySql("select * from " + tableName);
 
@@ -151,7 +168,7 @@ public abstract class DataBaseUtil {
         return object.toString();
     }
 
-    public void insert(HashMap<String, Object> map, String tableName) {
+    public void insert(HashMap<String, Object> map, String tableName) throws Exception {
         Set<String> keySet = map.keySet();
         String fields = "";
         String values = "";
@@ -171,18 +188,12 @@ public abstract class DataBaseUtil {
                 .replace("${tableName}", tableName)
                 .replace("${fields}", fields)
                 .replace("${values}", values);
-        try {
-            con = getConnection();
-            stmt = stmt == null || stmt.isClosed() ? (Statement) con.createStatement() : stmt;
-            stmt.execute(sql);
-        } catch (SQLException e) {
-            System.out.println(sql);
-            //showError("your sql is error,please to check!!!");
-            e.printStackTrace();
-        }
+        con = getConnection();
+        stmt = stmt == null || stmt.isClosed() ? (Statement) con.createStatement() : stmt;
+        stmt.execute(sql);
     }
 
-    private Map<String, Object> object2Map(Object obj) {
+    private Map<String, Object> object2Map(Object obj) throws Exception {
         Map<String, Object> map = new HashMap<>();
         if (obj == null) {
             return map;
@@ -229,7 +240,7 @@ public abstract class DataBaseUtil {
         return objectProperty;
     }
 
-    public List<Map<String, String>> select(String sql) throws SQLException {
+    public List<Map<String, String>> select(String sql) throws Exception {
         List<FieldInfo> tableFields = getTableFieldsBySql(sql);
         List<Map<String, String>> list = new ArrayList<Map<String, String>>();
         con = getConnection();
@@ -288,8 +299,9 @@ public abstract class DataBaseUtil {
         return humpString;
     }
 
-    public List<FieldInfo> getTableFieldsBySql(String  table) throws SQLException {
+    public List<FieldInfo> getTableFieldsBySql(String table) throws Exception {
         Connection conn = getConnection();
+
         Statement stmt = (Statement) conn.createStatement();
 
 
@@ -357,3 +369,4 @@ public abstract class DataBaseUtil {
     }
 
 }
+
