@@ -9,7 +9,7 @@ public class TemplateMachine {
     public static String SPLIT = "$$$";
     public static Template template = new Template();
 
-    public static String dfs(String content, HashMap<String, Object> map) {
+    public static String dfs(String content, HashMap<String, Object> map) throws Exception {
         while (content.contains(SPLIT)) {
             int position = content.indexOf(SPLIT);
             int position2 = content.indexOf(SPLIT, position + SPLIT.length()) + SPLIT.length();

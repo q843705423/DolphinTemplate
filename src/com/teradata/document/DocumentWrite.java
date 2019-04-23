@@ -16,7 +16,7 @@ public class DocumentWrite {
         document.setText(str);
     }
 
-    public void get() {
-        document.getText();
+    public String get() {
+        return document.getText();
     }
 }

@@ -1,21 +1,23 @@
 package com.teradata.ui;
 
 import com.intellij.ide.util.PropertiesComponent;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.ui.Messages;
-import com.teradata.db.DB;
 import com.teradata.db.DataBaseUtil;
 import com.teradata.db.DataPrepare;
 import com.teradata.db.DatabaseFactory;
-import cucumber.api.java.hu.Ha;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
+import com.teradata.document.DocumentWrite;
+import com.teradata.template.Template;
+import com.teradata.template.TemplateMachine;
 
 import javax.swing.*;
 import java.awt.event.*;
 import java.io.File;
-import java.sql.SQLException;
 import java.util.HashMap;
 
 public class MainConfig extends JDialog {
+    private static final String ERROR_TITLE = "DolphinTemplate";
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
@@ -29,8 +31,14 @@ public class MainConfig extends JDialog {
     private JTextField templateConfigText;
     private JButton templateChooseButton;
 
+    private AnActionEvent anAnction;
     private PropertiesComponent config;
     private DataBaseUtil db;
+
+    public String value ;
+    public void setAnAnction(AnActionEvent anAnction) {
+        this.anAnction = anAnction;
+    }
 
     public MainConfig() {
         setContentPane(contentPane);
@@ -123,14 +131,14 @@ public class MainConfig extends JDialog {
             Messages.showErrorDialog("数据库配置不能为空", "");
         }
         File file = new File(databaseConfigText.getText());
-        if(file.exists()==false){
+        if (file.exists() == false) {
             Messages.showErrorDialog("该文件已经不存在,请检查", "");
             return;
         }
         try {
             db = DatabaseFactory.readFile(file);
         } catch (Exception e) {
-            Messages.showErrorDialog(e.getMessage(),"");
+            Messages.showErrorDialog(e.getMessage(), "");
             return;
         }
         String key = keyText.getText();
@@ -138,14 +146,38 @@ public class MainConfig extends JDialog {
         String objectName = objectNameText.getText();
         String title = titleText.getText();
         String tableName = tableNameText.getText();
-        HashMap<String,Object>map ;
+        HashMap<String, Object> map;
         try {
-            map = DataPrepare.getData(db,key,className,objectName,title,tableName);
+            map = DataPrepare.getData(db, key, className, objectName, title, tableName);
         } catch (Exception e) {
-            Messages.showErrorDialog(e.getMessage(),"");
+            Messages.showErrorDialog(e.getMessage(), "");
             return;
         }
         System.out.println(map);
+        Template template = new Template();
+        String content = null;
+        try {
+            content = template.getContent("file:" + templateConfigText.getText());
+        } catch (Exception e) {
+            Messages.showErrorDialog(e.getMessage(), "");
+        }
+        String now = null;
+        try {
+            now = TemplateMachine.dfs(content, map);
+            System.out.println(now);
+        } catch (Exception e) {
+
+            Messages.showErrorDialog(e.getMessage(), ERROR_TITLE);
+            return;
+        }
+        value = now;
+        while (value.contains("\r\n")) value = value.replace("\r\n","\n");
+
+//        DocumentWrite documentWrite = new DocumentWrite(an);
+//        while (now.contains("\r\n")) {
+//            now = now.replace("\r\n", "\n");
+//        }
+//        documentWrite.set(now);
         dispose();
     }
 
